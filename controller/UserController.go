@@ -52,6 +52,7 @@ func Register(ctx *gin.Context) {
 		})
 		return
 	}
+	//加密存储
 	hasedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "加密错误"})
@@ -113,7 +114,13 @@ func Login(ctx *gin.Context) {
 		})
 	}
 	//发放token
-	token := 11
+	token, err := common.ReleaseToken(user)
+	if err != nil {
+		log.Println(err) //记录错误日志
+		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "系统错误"})
+		return
+
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": 200, "data": gin.H{"token": token}, "msg": "登陆成功"})
