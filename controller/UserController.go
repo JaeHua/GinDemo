@@ -2,7 +2,9 @@ package controller
 
 import (
 	"GinVue/common"
+	"GinVue/dto"
 	"GinVue/model"
+	"GinVue/response"
 	"GinVue/util"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -24,17 +26,12 @@ func Register(ctx *gin.Context) {
 	//判断参数合法
 
 	if len(telephone) != 11 {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code": 422,
-			"msg":  "电话必须为11位",
-		})
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "电话必须为11位")
 		return
 	}
 	if len(password) < 6 {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code": 422,
-			"msg":  "密码不得少于六位",
-		})
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "密码不得少于六位")
+
 		return
 	}
 
@@ -46,16 +43,14 @@ func Register(ctx *gin.Context) {
 
 	//手机号是否存在
 	if isTelephoneExist(DB, telephone) {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code": 422,
-			"msg":  "用户已经存在",
-		})
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "用户已经存在")
+
 		return
 	}
 	//加密存储
 	hasedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "加密错误"})
+		response.Response(ctx, http.StatusUnprocessableEntity, 500, nil, "加密错误")
 		return
 	}
 
@@ -68,8 +63,7 @@ func Register(ctx *gin.Context) {
 	DB.Create(&newUser)
 	//用户验证
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"code": 200, "msg": "注册成功"})
+	response.Success(ctx, nil, "注册成功")
 }
 
 func Login(ctx *gin.Context) {
@@ -83,47 +77,38 @@ func Login(ctx *gin.Context) {
 
 	log.Println(len(telephone))
 	if len(telephone) != 11 {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code": 422,
-			"msg":  "电话必须为11位",
-		})
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "电话必须为11位")
 		return
 	}
 
 	if len(password) < 6 {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code": 422,
-			"msg":  "密码不得少于六位",
-		})
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "密码不得少于六位")
+
 		return
 	}
 	//手机号是否存在
 	var user model.User
 	DB.Where("telephone=?", telephone).First(&user)
 	if user.ID == 0 {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code": 422,
-			"msg":  "用户不存在",
-		})
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "用户不存在")
+		return
 	}
 	//验证密码是否正确
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": 400,
-			"msg":  "密码错误",
-		})
+		response.Fail(ctx, nil, "密码错误")
+		return
 	}
 	//发放token
 	token, err := common.ReleaseToken(user)
 	if err != nil {
 		log.Println(err) //记录错误日志
-		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "系统错误"})
+		response.Response(ctx, http.StatusUnprocessableEntity, 500, nil, "系统错误")
+
 		return
 
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"code": 200, "data": gin.H{"token": token}, "msg": "登陆成功"})
+	response.Success(ctx, gin.H{"token": token}, "登陆成功")
 }
 
 // 获取用户信息（已经通过验证，可以从上下文获取信息）
@@ -131,28 +116,8 @@ func Login(ctx *gin.Context) {
 func Info(ctx *gin.Context) {
 	user, _ := ctx.Get("user")
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"code": 200,
-		"date": gin.H{"user": user},
-	})
+	ctx.JSON(http.StatusOK, gin.H{"data": gin.H{"user": dto.ToUserDto(user.(model.User))}})
 }
-
-/*
-{
-    "code": 200,
-    "date": {
-        "user": {
-            "ID": 3,
-            "CreatedAt": "2024-04-28T11:35:54Z",
-            "UpdatedAt": "2024-04-28T11:35:54Z",
-            "DeletedAt": null,
-            "Name": "suDVDADhwJ",
-            "Telephone": "12345678914",
-            "Password": "$2a$10$VzKK3utrIlbBN3JA8NSL9eqgrXt9rKg.3/XswxMq4kyYjcBMQ0A/q"
-        }
-    }
-}
-*/
 
 // 判断手机号是否存在
 func isTelephoneExist(db *gorm.DB, telephone string) bool {
