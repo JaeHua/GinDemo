@@ -126,6 +126,34 @@ func Login(ctx *gin.Context) {
 		"code": 200, "data": gin.H{"token": token}, "msg": "登陆成功"})
 }
 
+// 获取用户信息（已经通过验证，可以从上下文获取信息）
+
+func Info(ctx *gin.Context) {
+	user, _ := ctx.Get("user")
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"date": gin.H{"user": user},
+	})
+}
+
+/*
+{
+    "code": 200,
+    "date": {
+        "user": {
+            "ID": 3,
+            "CreatedAt": "2024-04-28T11:35:54Z",
+            "UpdatedAt": "2024-04-28T11:35:54Z",
+            "DeletedAt": null,
+            "Name": "suDVDADhwJ",
+            "Telephone": "12345678914",
+            "Password": "$2a$10$VzKK3utrIlbBN3JA8NSL9eqgrXt9rKg.3/XswxMq4kyYjcBMQ0A/q"
+        }
+    }
+}
+*/
+
 // 判断手机号是否存在
 func isTelephoneExist(db *gorm.DB, telephone string) bool {
 	var user model.User
