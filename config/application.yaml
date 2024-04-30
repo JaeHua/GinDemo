@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 3344
 datasource:
   driverName: mysql
   host: 127.0.0.1

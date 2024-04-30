@@ -17,11 +17,13 @@ func Register(ctx *gin.Context) {
 
 	DB := common.GetDB()
 	//获取参数
-	name := ctx.PostForm("name")
+	var requestUser = model.User{}
+	ctx.Bind(&requestUser)
+	name := requestUser.Name
 
-	telephone := ctx.PostForm("telephone")
+	telephone := requestUser.Telephone
 
-	password := ctx.PostForm("password")
+	password := requestUser.Password
 
 	//判断参数合法
 
@@ -62,8 +64,15 @@ func Register(ctx *gin.Context) {
 	}
 	DB.Create(&newUser)
 	//用户验证
+	token, err := common.ReleaseToken(newUser)
+	if err != nil {
+		log.Println(err) //记录错误日志
+		response.Response(ctx, http.StatusUnprocessableEntity, 500, nil, "系统错误")
 
-	response.Success(ctx, nil, "注册成功")
+		return
+
+	}
+	response.Success(ctx, gin.H{"token": token}, "注册成功")
 }
 
 func Login(ctx *gin.Context) {
