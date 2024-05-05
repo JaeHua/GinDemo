@@ -78,10 +78,14 @@ func Register(ctx *gin.Context) {
 func Login(ctx *gin.Context) {
 	//获取参数
 	DB := common.GetDB()
+	//获取参数
+	var requestUser = model.User{}
+	ctx.Bind(&requestUser)
 
-	telephone := ctx.PostForm("telephone")
+	telephone := requestUser.Telephone
 
-	password := ctx.PostForm("password")
+	password := requestUser.Password
+
 	//验证参数
 
 	log.Println(len(telephone))
