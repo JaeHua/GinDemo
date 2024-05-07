@@ -86,4 +86,4 @@ go中mysql驱动
 
 ## 参考:
 
-https://www.bilibili.com/video/BV1Rg411u7xH/
+[https://www.bilibili.com/video/BV1Rg411u7xH/](https://www.bilibili.com/video/BV1CE411H7bQ/?spm_id_from=333.337.search-card.all.click)
