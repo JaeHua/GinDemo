@@ -33,6 +33,7 @@ func AuthMiddleware() gin.HandlerFunc {
 				"code": 401,
 				"msg":  "权限不足",
 			})
+			return
 		}
 		//验证通过后获取其中的userID
 		userId := claim.UserId
@@ -46,6 +47,7 @@ func AuthMiddleware() gin.HandlerFunc {
 				"code": 401,
 				"msg":  "权限不足",
 			})
+			return
 		}
 		//用户存在,将user写入上下文
 		ctx.Set("user", user)
