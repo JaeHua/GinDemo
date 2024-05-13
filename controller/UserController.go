@@ -6,6 +6,7 @@ import (
 	"GinVue/model"
 	"GinVue/response"
 	"GinVue/util"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
@@ -18,7 +19,10 @@ func Register(ctx *gin.Context) {
 	DB := common.GetDB()
 	//获取参数
 	var requestUser = model.User{}
-	ctx.Bind(&requestUser)
+	err := ctx.BindJSON(&requestUser)
+	if err != nil {
+		return
+	}
 	name := requestUser.Name
 
 	telephone := requestUser.Telephone
@@ -26,7 +30,7 @@ func Register(ctx *gin.Context) {
 	password := requestUser.Password
 
 	//判断参数合法
-
+	fmt.Println("telephone:" + telephone)
 	if len(telephone) != 11 {
 		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "电话必须为11位")
 		return
@@ -88,7 +92,6 @@ func Login(ctx *gin.Context) {
 
 	//验证参数
 
-	log.Println(len(telephone))
 	if len(telephone) != 11 {
 		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "电话必须为11位")
 		return
@@ -108,9 +111,11 @@ func Login(ctx *gin.Context) {
 	}
 	//验证密码是否正确
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		response.Fail(ctx, nil, "密码错误")
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "密码错误")
+		log.Println(err)
 		return
 	}
+	log.Println()
 	//发放token
 	token, err := common.ReleaseToken(user)
 	if err != nil {

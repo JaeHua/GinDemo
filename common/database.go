@@ -30,7 +30,8 @@ func InitDB() *gorm.DB {
 		panic("failed to connect databases,err:" + err.Error())
 	}
 
-	db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&model.User{}, &model.Todo{})
+	db.Model(&model.Todo{}).AddForeignKey("telephone", "users(telephone)", "CASCADE", "CASCADE")
 	DB = db
 	return db
 }
