@@ -6,7 +6,6 @@ import (
 	"GinVue/model"
 	"GinVue/response"
 	"GinVue/util"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
@@ -14,43 +13,42 @@ import (
 	"net/http"
 )
 
+// Register 注册
 func Register(ctx *gin.Context) {
-
 	DB := common.GetDB()
+
 	//获取参数
 	var requestUser = model.User{}
-	err := ctx.BindJSON(&requestUser)
+	err := ctx.ShouldBind(&requestUser)
 	if err != nil {
 		return
 	}
+
 	name := requestUser.Name
-
 	telephone := requestUser.Telephone
-
 	password := requestUser.Password
 
 	//判断参数合法
-	fmt.Println("telephone:" + telephone)
 	if len(telephone) != 11 {
 		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "电话必须为11位")
 		return
 	}
+
+	//密码位数要求
 	if len(password) < 6 {
 		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "密码不得少于六位")
 
 		return
 	}
 
+	//没输入用户名那么随机取个名
 	if len(name) == 0 {
 		name = util.GetRandomName()
 	}
 
-	//log.Println(name, telephone, password)
-
 	//手机号是否存在
 	if isTelephoneExist(DB, telephone) {
 		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "用户已经存在")
-
 		return
 	}
 	//加密存储
@@ -66,28 +64,33 @@ func Register(ctx *gin.Context) {
 		Telephone: telephone,
 		Password:  string(hasedPassword),
 	}
+	//存入数据库
 	DB.Create(&newUser)
+
 	//用户验证
 	token, err := common.ReleaseToken(newUser)
 	if err != nil {
 		log.Println(err) //记录错误日志
 		response.Response(ctx, http.StatusUnprocessableEntity, 500, nil, "系统错误")
-
 		return
-
 	}
 	response.Success(ctx, gin.H{"token": token}, "注册成功")
 }
 
+// Login 登陆模块
 func Login(ctx *gin.Context) {
+
 	//获取参数
 	DB := common.GetDB()
 	//获取参数
 	var requestUser = model.User{}
-	ctx.Bind(&requestUser)
+
+	err := ctx.ShouldBind(&requestUser)
+	if err != nil {
+		return
+	}
 
 	telephone := requestUser.Telephone
-
 	password := requestUser.Password
 
 	//验证参数
@@ -99,7 +102,6 @@ func Login(ctx *gin.Context) {
 
 	if len(password) < 6 {
 		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "密码不得少于六位")
-
 		return
 	}
 	//手机号是否存在
@@ -121,19 +123,15 @@ func Login(ctx *gin.Context) {
 	if err != nil {
 		log.Println(err) //记录错误日志
 		response.Response(ctx, http.StatusUnprocessableEntity, 500, nil, "系统错误")
-
 		return
-
 	}
 
 	response.Success(ctx, gin.H{"token": token}, "登陆成功")
 }
 
-// 获取用户信息（已经通过验证，可以从上下文获取信息）
-
+// Info 获取用户信息（已经通过验证，可以从上下文获取信息）
 func Info(ctx *gin.Context) {
 	user, _ := ctx.Get("user")
-
 	ctx.JSON(http.StatusOK, gin.H{"data": gin.H{"user": dto.ToUserDto(user.(model.User))}})
 }
 

@@ -5,8 +5,7 @@ import (
 	"time"
 )
 
-// 返回一个十位的随机字符串
-
+// GetRandomName 返回一个十位的随机字符串
 func GetRandomName() string {
 
 	var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -18,6 +17,5 @@ func GetRandomName() string {
 	for i := range result {
 		result[i] = letters[rand.Intn(len(letters))]
 	}
-
 	return string(result)
 }

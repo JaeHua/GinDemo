@@ -20,12 +20,14 @@ func AuthMiddleware() gin.HandlerFunc {
 				"code": 401,
 				"msg":  "权限不足",
 			})
-			ctx.Abort() // 抛弃请求
+			// 抛弃请求
+			ctx.Abort()
 			return
 		}
 		//除去Bearer
 		tokenString = tokenString[7:]
 
+		//获取token
 		token, claim, err := common.ParseToken(tokenString)
 
 		if err != nil || !token.Valid {
