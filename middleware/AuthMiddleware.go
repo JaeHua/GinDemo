@@ -35,6 +35,8 @@ func AuthMiddleware() gin.HandlerFunc {
 				"code": 401,
 				"msg":  "权限不足",
 			})
+			// 抛弃请求
+			ctx.Abort()
 			return
 		}
 		//验证通过后获取其中的userID

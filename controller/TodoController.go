@@ -7,6 +7,7 @@ import (
 	"GinVue/response"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -18,11 +19,10 @@ func CreateTodo(ctx *gin.Context) {
 	var todo = model.Todo{}
 	var um model.User
 
+	log.Println("hi")
+
 	//从请求中拿出数据
-	err := ctx.ShouldBind(&todo)
-	if err != nil {
-		return
-	}
+	ctx.ShouldBind(&todo)
 
 	//从上下文拿到user信息
 	user, _ := ctx.Get("user")
@@ -39,6 +39,7 @@ func CreateTodo(ctx *gin.Context) {
 		Telephone: telephone,
 		Status:    status,
 	}
+	log.Println(newTodo)
 	//存入数据库
 	DB.Create(&newTodo)
 	response.Response(ctx, http.StatusOK, 200, gin.H{"todo": dto.ToTodoDto(newTodo)}, "todo存储成功")

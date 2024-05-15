@@ -2,9 +2,9 @@ server:
   port: 3344
 datasource:
   driverName: mysql
-  host: 127.0.0.1
-  port: 3306
-  database: ginvue
+  host: 47.115.213.254
+  port: 3310
+  database: my_go_web_demo
   username: root
-  password: jh529529
+  password: 123456
   charset: utf8
