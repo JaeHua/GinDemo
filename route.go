@@ -33,6 +33,11 @@ func CollectRoute(r *gin.Engine) *gin.Engine {
 	//删除todo
 	r.DELETE("/api/auth/todo:id", middleware.AuthMiddleware(), controller.DeleteTodo)
 
+	//发送验证码
+	r.POST("api/auth/email", controller.GetValidateCode)
+
+	//验证验证码
+	r.POST("api/auth/verify", controller.ValidateEmailCode)
 	return r
 
 }

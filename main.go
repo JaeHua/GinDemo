@@ -3,6 +3,7 @@ package main
 import (
 	"GinVue/common"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
@@ -17,6 +18,9 @@ func main() {
 	//初始化DB
 	db := common.InitDB()
 
+	//初始化RD
+	rd := common.InitSingleRedis()
+
 	//数据库延时关闭
 	defer func(db *gorm.DB) {
 		err := db.Close()
@@ -24,6 +28,14 @@ func main() {
 			panic(err)
 		}
 	}(db)
+
+	//Redis延时关闭
+	defer func(Db *redis.Client) {
+		err := Db.Close()
+		if err != nil {
+
+		}
+	}(rd.Db)
 
 	//默认处理引擎
 	r := gin.Default()

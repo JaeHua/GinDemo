@@ -8,3 +8,9 @@ datasource:
   username: root
   password: 123456
   charset: utf8
+
+redis:
+  host: 47.115.213.254
+  port: 6379
+  auth:
+

@@ -19,8 +19,6 @@ func CreateTodo(ctx *gin.Context) {
 	var todo = model.Todo{}
 	var um model.User
 
-	log.Println("hi")
-
 	//从请求中拿出数据
 	ctx.ShouldBind(&todo)
 
