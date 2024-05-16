@@ -29,8 +29,8 @@ func Register(ctx *gin.Context) {
 	password := requestUser.Password
 
 	//判断参数合法
-	if len(telephone) != 11 {
-		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "电话必须为11位")
+	if len(telephone) < 6 || len(telephone) > 11 {
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "QQ必须为6~11位")
 		return
 	}
 
@@ -95,8 +95,8 @@ func Login(ctx *gin.Context) {
 
 	//验证参数
 
-	if len(telephone) != 11 {
-		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "电话必须为11位")
+	if len(telephone) < 6 || len(telephone) > 11 {
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "QQ必须为6~11位")
 		return
 	}
 

@@ -18,7 +18,7 @@ import (
 // SendEmailValidate 发送邮件
 func SendEmailValidate(em []string) (string, error) {
 	e := email.NewEmail()
-	e.From = fmt.Sprintf("Gin <2624857134@qq.com>")
+	e.From = fmt.Sprintf("GoKits <2624857134@qq.com>")
 	e.To = em
 
 	// 生成6位随机验证码
@@ -55,8 +55,12 @@ func GetValidateCode(ctx *gin.Context) {
 	rd := common.GetRedis()
 
 	// 获取目的邮箱
-	em := []string{ctx.PostForm("email")}
-
+	//获取前端发来的验证码
+	var mail = model.MailCode{}
+	ctx.ShouldBind(&mail)
+	em := []string{mail.Mail}
+	//em := []string{ctx.PostForm("mail")}
+	//log.Println(em[0] + "hi")
 	vCode, err := SendEmailValidate(em)
 	if err != nil {
 		log.Println(err)
@@ -88,12 +92,12 @@ func ValidateEmailCode(ctx *gin.Context) {
 	ctx.ShouldBind(&em)
 
 	vCode := em.VCode
-	log.Println("vCode", vCode)
+	//log.Println("vCode", vCode)
 
 	// 获取存储在redis中的验证码
-	key := "vCode" + em.Mail
-	rdVCode := rd.Db.Get(key).Val()
-	log.Println("key:rdvCode", key, rdVCode)
+	key := strings.Split("vCode"+em.Mail, "@")
+	rdVCode := rd.Db.Get(key[0]).Val()
+	//log.Println("key:rdvCode", key[0], rdVCode)
 
 	if rdVCode != "" && vCode == rdVCode {
 		response.Response(ctx, http.StatusOK, 200, nil, "验证成功")
