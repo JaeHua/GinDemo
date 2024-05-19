@@ -60,7 +60,7 @@ func GetValidateCode(ctx *gin.Context) {
 	ctx.ShouldBind(&mail)
 	em := []string{mail.Mail}
 	//em := []string{ctx.PostForm("mail")}
-	//log.Println(em[0] + "hi")
+	log.Println(em[0] + "hi")
 	vCode, err := SendEmailValidate(em)
 	if err != nil {
 		log.Println(err)

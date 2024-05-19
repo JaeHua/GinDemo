@@ -4,7 +4,7 @@ datasource:
   driverName: mysql
   host: 47.115.213.254
   port: 3310
-  database: my_go_web_demo
+  database: ginvue
   username: root
   password: 123456
   charset: utf8

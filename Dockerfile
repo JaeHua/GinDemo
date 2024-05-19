@@ -16,10 +16,10 @@ RUN go env -w GO111MODULE=auto
 RUN go env -w GOPROXY=https://goproxy.cn,direct
 
 # 构建go应用
-RUN go -o GinDemoApp  main.go route.go
+RUN go build
 
 # 暴露端口
-EXPOSE 3031
+EXPOSE 3344
 
 # 镜像默认入口命令
-ENTRYPOINT ["./GinDemoApp"]
+ENTRYPOINT ["./GinVue"]
